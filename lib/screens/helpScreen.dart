@@ -12,8 +12,8 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   void initState() {
     super.initState();
-    // Future.delayed(const Duration(seconds: 5)).then(
-    //     (value) => Navigator.of(context).pushReplacementNamed("/homeScreen"));
+    Future.delayed(const Duration(seconds: 5)).then(
+        (value) => Navigator.of(context).pushReplacementNamed("/homeScreen"));
   }
 
   @override
@@ -32,13 +32,17 @@ class _HelpScreenState extends State<HelpScreen> {
             SizedBox(
               height: 100,
               width: fullWidth(context) * 0.8,
-              child: const Text(
-                "WE SHOW WEATHER FOR YOU",
-                style: TextStyle(
-                    fontSize: 29,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 52, 145, 166)),
-              ),
+              child: RichText(
+                  textAlign: TextAlign.center,
+                  text: const TextSpan(children: [
+                    TextSpan(
+                      text: "WE SHOW WEATHER FOR YOU",
+                      style: TextStyle(
+                          fontSize: 29,
+                          fontWeight: FontWeight.w900,
+                          color: Color.fromARGB(255, 60, 140, 116)),
+                    )
+                  ])),
             ),
             gap10,
             Container(

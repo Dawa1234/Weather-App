@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:weather_app/routes.dart';
 import 'package:weather_app/theme.dart';
 
@@ -9,7 +10,7 @@ void main() {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]).then(
-    (value) => runApp(const MyApp()),
+    (value) => runApp(const ProviderScope(child: MyApp())),
   );
 }
 

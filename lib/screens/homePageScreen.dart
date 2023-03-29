@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kdgaugeview/kdgaugeview.dart';
 import 'package:weather_app/measures.dart';
 import 'package:weather_app/models/condition.dart';
 import 'package:weather_app/models/current.dart';
@@ -16,6 +17,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   final _locationController = TextEditingController();
   bool isDay = true;
 
+  // for background image
   void checkDayOrNight(String query) {
     WeatherRepoImpl().weatherInformation(query).then((value) {
       if (value!.current!.is_day == 1) {
@@ -34,6 +36,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    // for initial value
     WeatherRepoImpl().weatherInformation("27.7172,85.3240").then((value) {
       if (value!.current!.is_day == 1) {
         setState(() {
@@ -54,61 +57,88 @@ class _HomePageScreenState extends State<HomePageScreen> {
         body: SizedBox(
           width: double.infinity,
           height: double.infinity,
-          child: SingleChildScrollView(
-            child: Column(children: [
-              Container(
-                height: 550,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    color: Colors.amber,
-                    image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: isDay
-                            ? const AssetImage("assets/images/day.jpg")
-                            : const AssetImage("assets/images/night.jpg"))),
-                child: Stack(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.all(8),
-                      child: TextFormField(
-                        controller: _locationController,
-                        decoration: InputDecoration(
-                          hintText: "Search by Location Name",
-                          prefixIcon: const Icon(Icons.search),
-                          contentPadding: const EdgeInsets.all(10),
-                          filled: true,
-                          fillColor: Colors.white,
-                          enabledBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          suffixIcon: Container(
-                            width: 106,
-                            height: 40,
-                            margin: const EdgeInsets.only(right: 8),
-                            alignment: Alignment.centerRight,
-                            child: MaterialButton(
-                                textColor: Colors.white,
-                                color: const Color.fromARGB(255, 183, 183, 183),
-                                onPressed: () {
-                                  setState(() {
-                                    checkDayOrNight(_locationController.text);
-                                  });
-                                },
-                                child: const Text("Save/Search")),
-                          ),
+          child: Stack(children: [
+            Container(
+              height: 520,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  color: Colors.orange,
+                  image: DecorationImage(
+                      fit: BoxFit.cover,
+                      // Background Image day/night
+                      image: isDay
+                          ? const AssetImage("assets/images/day.jpg")
+                          : const AssetImage("assets/images/night.jpg"))),
+              child: Column(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.all(8),
+                    // search/textform bar
+                    child: TextFormField(
+                      controller: _locationController,
+                      decoration: InputDecoration(
+                        hintText: "Search by Location Name",
+                        prefixIcon: const Icon(Icons.search),
+                        contentPadding: const EdgeInsets.all(10),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        suffixIcon: Container(
+                          width: 106,
+                          height: 40,
+                          margin: const EdgeInsets.only(right: 8),
+                          alignment: Alignment.centerRight,
+                          child: MaterialButton(
+                              textColor: Colors.white,
+                              color: const Color.fromARGB(255, 255, 172, 100),
+                              onPressed: () {
+                                setState(() {
+                                  checkDayOrNight(_locationController.text);
+                                });
+                              },
+                              child: const Text("Save/Search")),
                         ),
                       ),
                     ),
-                    _WeatherInformation(query: _locationController.text)
-                  ],
-                ),
+                  ),
+                  gap30,
+                  // weather information
+                  _WeatherInformation(query: _locationController.text)
+                ],
               ),
-              _BottomInformation(query: _locationController.text)
-            ]),
-          ),
+            ),
+            // temperature view
+            Positioned(
+                bottom: 0,
+                child: _BottomInformation(query: _locationController.text)),
+            Positioned(
+                top: 60,
+                child: Container(
+                  width: 375,
+                  height: 180,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  margin: const EdgeInsets.all(8),
+                  child: ListView.builder(
+                      itemCount: 5,
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onTap: () {},
+                          child: const ListTile(
+                            leading: Icon(Icons.close),
+                            title: Text("Canada"),
+                          ),
+                        );
+                      }),
+                ))
+          ]),
         ),
       ),
     );
@@ -117,18 +147,20 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
 // ignore: must_be_immutable
 class _WeatherInformation extends StatelessWidget {
+  _WeatherInformation({required this.query});
+
+  // styling text
   TextStyle textStyle(
-      {required double fontSize, required FontWeight fontWeight}) {
-    return TextStyle(
-        fontSize: fontSize, fontWeight: fontWeight, color: Colors.white);
+      {required double fontSize,
+      required FontWeight fontWeight,
+      Color color = Colors.white}) {
+    return TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color);
   }
 
+  // variables
   String query;
-  _WeatherInformation({required this.query});
   Location? location;
-
   Current? current;
-
   Condition? condition;
 
   @override
@@ -147,16 +179,20 @@ class _WeatherInformation extends StatelessWidget {
               location = snapshot.data!.location;
               current = snapshot.data!.current;
               condition = snapshot.data!.current!.condition!;
+              // main weather content
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Day/Night
                     Wrap(
                       children: [
                         Text(
                           current!.is_day! == 1 ? "Day" : "Night",
                           style: textStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         Container(
                             height: 25,
@@ -173,11 +209,13 @@ class _WeatherInformation extends StatelessWidget {
                                   )),
                       ],
                     ),
+                    // weather names (cloudy,clear, ...)
                     Text(condition!.text!,
                         style: textStyle(
                           fontSize: 23,
                           fontWeight: FontWeight.bold,
                         )),
+                    // location
                     Text(
                       "${location!.name}, ${location!.country}",
                       style: textStyle(
@@ -188,6 +226,7 @@ class _WeatherInformation extends StatelessWidget {
                     const SizedBox(
                       height: 10,
                     ),
+                    // temperature
                     RichText(
                       text: TextSpan(children: [
                         TextSpan(
@@ -199,9 +238,11 @@ class _WeatherInformation extends StatelessWidget {
                         TextSpan(
                             text: "°c",
                             style: textStyle(
-                              fontSize: 60,
-                              fontWeight: FontWeight.bold,
-                            )),
+                                fontSize: 60,
+                                fontWeight: FontWeight.bold,
+                                color: current!.is_day! == 1
+                                    ? Colors.white
+                                    : Colors.orange)),
                       ]),
                     ),
                   ],
@@ -209,7 +250,11 @@ class _WeatherInformation extends StatelessWidget {
               );
             } else {
               return const Center(
-                child: Text("No data found"),
+                child: Text("No data found",
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white)),
               );
             }
           } else {
@@ -223,60 +268,101 @@ class _WeatherInformation extends StatelessWidget {
 
 // ignore: must_be_immutable
 class _BottomInformation extends StatelessWidget {
-  TextStyle textStyle(
-      {required double fontSize, required FontWeight fontWeight}) {
-    return TextStyle(
-        fontSize: fontSize, fontWeight: fontWeight, color: Colors.black);
-  }
-
-  String query;
   _BottomInformation({required this.query});
+  // variables
+  String query;
   Current? current;
+  final TextStyle _textStyle = const TextStyle(
+    shadows: [
+      Shadow(color: Colors.black, offset: Offset(0, -20), blurRadius: 1)
+    ],
+    fontWeight: FontWeight.w500,
+    color: Colors.transparent,
+    decoration: TextDecoration.underline,
+    decorationColor: Color.fromARGB(255, 184, 184, 184),
+    decorationThickness: 3,
+    decorationStyle: TextDecorationStyle.solid,
+  );
+
+  // show temperature function
+  // here, speed indicates the temperature
+  SizedBox _temperatureMeter(double temperature, String degree) {
+    return SizedBox(
+        height: 150,
+        width: 150,
+        child: KdGaugeView(
+          innerCirclePadding: 40,
+          gaugeWidth: 15,
+          duration: const Duration(seconds: 2),
+          speedTextStyle: const TextStyle(
+              fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
+          speed: temperature,
+          minSpeed: -40,
+          maxSpeed: degree == "C" ? 60 : 140,
+          animate: true,
+          alertSpeedArray:
+              degree == "C" ? const [-40, 7, 24] : const [-40, 50, 75],
+          alertColorArray: const [
+            Color.fromARGB(255, 65, 217, 222),
+            Colors.orange,
+            Colors.red
+          ],
+          minMaxTextStyle: const TextStyle(color: Colors.transparent),
+          unitOfMeasurement: "°$degree",
+          unitOfMeasurementTextStyle:
+              const TextStyle(fontSize: 20, color: Colors.black),
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 207,
+    return Container(
+      decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      width: fullWidth(context),
+      height: 257,
       child: Column(
         children: [
+          // Heading
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.only(top: 50.0),
             child: Text(
               "Temperature View",
-              style: textStyle(fontSize: 23, fontWeight: FontWeight.w500),
+              style: _textStyle,
             ),
           ),
-          gap50,
+          gap30,
           FutureBuilder(
               future: WeatherRepoImpl().weatherInformation(query),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                       child: CircularProgressIndicator(
-                    color: Colors.amber,
+                    color: Colors.orange,
                   ));
                 } else if (snapshot.connectionState == ConnectionState.active ||
                     snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     current = snapshot.data!.current;
-                    return SingleChildScrollView(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("${current!.temp_c}"),
-                              Text("${current!.temp_f}"),
-                            ],
-                          ),
-                        ],
-                      ),
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        // in celsius
+                        _temperatureMeter(current!.temp_c!, "C"),
+                        // in farenheit
+                        _temperatureMeter(current!.temp_f!, "F"),
+                      ],
                     );
                   } else {
                     return const Center(
-                      child: Text("No data found"),
+                      child: Text(
+                        "No data found",
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange),
+                      ),
                     );
                   }
                 } else {

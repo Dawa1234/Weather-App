@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kdgaugeview/kdgaugeview.dart';
 import 'package:weather_app/measures.dart';
 import 'package:weather_app/models/current.dart';
-import 'package:weather_app/repository/weatherRepo.dart';
+import 'package:weather_app/provider/weatherProvider.dart';
 
-class BottomInformation extends StatelessWidget {
+class BottomInformation extends ConsumerWidget {
   BottomInformation({super.key, required this.query});
   // variables
   String query;
@@ -52,7 +53,7 @@ class BottomInformation extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: const BoxDecoration(
           color: Colors.white,
@@ -70,44 +71,65 @@ class BottomInformation extends StatelessWidget {
             ),
           ),
           gap30,
-          FutureBuilder(
-              future: WeatherRepoImpl().weatherInformation(query),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                      child: CircularProgressIndicator(
-                    color: Colors.orange,
-                  ));
-                } else if (snapshot.connectionState == ConnectionState.active ||
-                    snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData) {
-                    current = snapshot.data!.current;
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        // in celsius
-                        _temperatureMeter(current!.temp_c!, "C"),
-                        // in farenheit
-                        _temperatureMeter(current!.temp_f!, "F"),
-                      ],
-                    );
-                  } else {
-                    return const Center(
-                      child: Text(
-                        "No data found",
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange),
-                      ),
-                    );
-                  }
-                } else {
-                  return const Center(
-                    child: Text("No any request/response"),
-                  );
-                }
-              }),
+          ref.watch(weatherInfoProvider(query)).when(data: (data) {
+            current = data!.current;
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                // in celsius
+                _temperatureMeter(current!.temp_c!, "C"),
+                // in farenheit
+                _temperatureMeter(current!.temp_f!, "F"),
+              ],
+            );
+          }, error: (error, stackTrace) {
+            return const Center(
+              child: Text("No data"),
+            );
+          }, loading: () {
+            return const Center(
+                child: CircularProgressIndicator(
+              color: Colors.orange,
+            ));
+          }),
+          // FutureBuilder(
+          //     future: WeatherRepoImpl().weatherInformation(query),
+          //     builder: (context, snapshot) {
+          //       if (snapshot.connectionState == ConnectionState.waiting) {
+          //         return const Center(
+          //             child: CircularProgressIndicator(
+          //           color: Colors.orange,
+          //         ));
+          //       } else if (snapshot.connectionState == ConnectionState.active ||
+          //           snapshot.connectionState == ConnectionState.done) {
+          //         if (snapshot.hasData) {
+          //           current = snapshot.data!.current;
+          //           return Row(
+          //             mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //             children: [
+          //               // in celsius
+          //               _temperatureMeter(current!.temp_c!, "C"),
+          //               // in farenheit
+          //               _temperatureMeter(current!.temp_f!, "F"),
+          //             ],
+          //           );
+          //         } else {
+          //           return const Center(
+          //             child: Text(
+          //               "No data found",
+          //               style: TextStyle(
+          //                   fontSize: 20,
+          //                   fontWeight: FontWeight.bold,
+          //                   color: Colors.orange),
+          //             ),
+          //           );
+          //         }
+          //       } else {
+          //         return const Center(
+          //           child: Text("No any request/response"),
+          //         );
+          //       }
+          //     }),
         ],
       ),
     );

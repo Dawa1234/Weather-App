@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_app/measures.dart';
+import 'package:weather_app/provider/weatherProvider.dart';
 import 'package:weather_app/repository/weatherRepo.dart';
 import 'package:weather_app/screens/bottomScreen.dart';
 import 'package:weather_app/screens/weatherInformation.dart';
 
-class HomePageScreen extends StatefulWidget {
+class HomePageScreen extends ConsumerStatefulWidget {
   const HomePageScreen({super.key});
 
   @override
-  State<HomePageScreen> createState() => _HomePageScreenState();
+  ConsumerState<HomePageScreen> createState() => _HomePageScreenState();
 }
 
-class _HomePageScreenState extends State<HomePageScreen> {
+class _HomePageScreenState extends ConsumerState<HomePageScreen> {
   final _locationController = TextEditingController();
   bool isDay = true;
   bool saveButton = true;
@@ -54,9 +56,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       data.add(locationName);
       // update the data and save
       await prefs.setStringList('location', data).whenComplete(() {
-        setState(() {
-          _recentLocations = prefs.getStringList('location') as List<String>;
-        });
+        recentSearch();
       });
     }
   }
@@ -105,8 +105,13 @@ class _HomePageScreenState extends State<HomePageScreen> {
     recentSearch();
   }
 
+  void weatherInformation(WidgetRef ref) {
+    ref.watch(weatherProvider.notifier).updateWeather(_locationController.text);
+  }
+
   @override
   Widget build(BuildContext context) {
+    weatherInformation(ref);
     return SafeArea(
       child: Scaffold(
         body: SizedBox(

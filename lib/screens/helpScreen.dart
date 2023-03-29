@@ -12,8 +12,8 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   void initState() {
     super.initState();
-    // Future.delayed(const Duration(seconds: 5)).then(
-    //     (value) => Navigator.of(context).pushReplacementNamed("/homeScreen"));
+    Future.delayed(const Duration(seconds: 5)).then(
+        (value) => Navigator.of(context).pushReplacementNamed("/homeScreen"));
   }
 
   @override

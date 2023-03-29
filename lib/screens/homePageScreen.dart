@@ -43,7 +43,7 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
     // if inserting data for the first time
     if (data == null || data.isEmpty) {
       // if locationName is empty do not insert
-      if (locationName != "") {
+      if (locationName != "" || locationName.isNotEmpty) {
         await prefs.setStringList(
             'location', [locationName.toLowerCase()]).whenComplete(() {});
         return;
@@ -59,20 +59,12 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
         recentSearch();
       });
     }
-  }
-
-  // to Update the button (save/update)
-  void _updateButton(String value) {
-    if (value.isNotEmpty) {
-      saveButton = false;
-      return;
-    }
-    saveButton = true;
+    // prefs.remove('location');
   }
 
   // to set the inital background image (day/night)
   void initalDay() async {
-    await WeatherRepoImpl().weatherInformation("27.7172,85.3240").then((value) {
+    await WeatherRepoImpl().weatherInformation("").then((value) {
       if (value!.current!.is_day == 1) {
         setState(() {
           isDay = true;
@@ -105,13 +97,13 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
     recentSearch();
   }
 
-  void weatherInformation(WidgetRef ref) {
+  void weatherInformation() {
     ref.watch(weatherProvider.notifier).updateWeather(_locationController.text);
   }
 
   @override
   Widget build(BuildContext context) {
-    weatherInformation(ref);
+    weatherInformation();
     return SafeArea(
       child: Scaffold(
         body: SizedBox(
@@ -130,6 +122,7 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
                           ? const AssetImage("assets/images/day.jpg")
                           : const AssetImage("assets/images/night.jpg"))),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     margin: const EdgeInsets.all(8),
@@ -137,7 +130,6 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
                     child: TextFormField(
                       onTapOutside: (event) =>
                           FocusManager.instance.primaryFocus?.unfocus(),
-                      onChanged: (value) => _updateButton(value),
                       controller: _locationController,
                       decoration: InputDecoration(
                         hintText: "Search by Location Name",
@@ -179,7 +171,25 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
                       ),
                     ),
                   ),
-                  gap30,
+                  InkWell(
+                    onTap: () => Navigator.of(context).pushNamed('/helpScreen'),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        "Help?",
+                        style: TextStyle(
+                            shadows: [
+                              Shadow(offset: Offset(0, -5), color: Colors.white)
+                            ],
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white,
+                            decorationStyle: TextDecorationStyle.solid,
+                            decorationThickness: 2,
+                            color: Colors.transparent,
+                            fontSize: 18),
+                      ),
+                    ),
+                  ),
                   // weather information
                   WeatherInformation(query: _locationController.text)
                 ],
@@ -240,7 +250,10 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
                                         setState(() {
                                           _locationController.text =
                                               _recentLocations[index];
+                                          saveButton = false;
                                         });
+                                        checkDayOrNight(
+                                            _locationController.text);
                                       }
                                     },
                                     title: Text(

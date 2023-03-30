@@ -9,6 +9,7 @@ import 'package:weather_app/screens/weatherInformation.dart';
 
 class HomePageScreen extends ConsumerStatefulWidget {
   const HomePageScreen({super.key});
+  static const route = "/homeScreen";
 
   @override
   ConsumerState<HomePageScreen> createState() => _HomePageScreenState();
@@ -16,21 +17,23 @@ class HomePageScreen extends ConsumerStatefulWidget {
 
 class _HomePageScreenState extends ConsumerState<HomePageScreen> {
   final _locationController = TextEditingController();
-  bool isDay = true;
+  bool isDay = false;
   bool saveButton = true;
   List<String> _recentLocations = [];
 
   // for background image
   void checkDayOrNight(String query) {
     WeatherRepoImpl().weatherInformation(query).then((value) {
-      if (value!.current!.is_day == 1) {
-        setState(() {
-          isDay = true;
-        });
-      } else {
-        setState(() {
-          isDay = false;
-        });
+      if (mounted) {
+        if (value!.current!.is_day == 1) {
+          setState(() {
+            isDay = true;
+          });
+        } else {
+          setState(() {
+            isDay = false;
+          });
+        }
       }
     });
   }
@@ -59,32 +62,20 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
         recentSearch();
       });
     }
-    // prefs.remove('location');
-  }
-
-  // to set the inital background image (day/night)
-  void initalDay() async {
-    await WeatherRepoImpl().weatherInformation("").then((value) {
-      if (value!.current!.is_day == 1) {
-        setState(() {
-          isDay = true;
-        });
-      } else {
-        setState(() {
-          isDay = false;
-        });
-      }
-    });
   }
 
   // get recent search data
   void recentSearch() async {
     final prefs = await SharedPreferences.getInstance();
     List<String>? data = prefs.getStringList('location');
-    if (data != null || data!.isNotEmpty) {
-      setState(() {
-        _recentLocations = data;
-      });
+    if (data != null) {
+      if (data.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _recentLocations = data;
+          });
+        }
+      }
     }
   }
 
@@ -93,12 +84,16 @@ class _HomePageScreenState extends ConsumerState<HomePageScreen> {
     // TODO: implement initState
     super.initState();
     // for initial value
-    initalDay();
+    checkDayOrNight("");
     recentSearch();
   }
 
   void weatherInformation() {
-    ref.watch(weatherProvider.notifier).updateWeather(_locationController.text);
+    if (mounted) {
+      ref
+          .watch(weatherProvider.notifier)
+          .updateWeather(_locationController.text);
+    }
   }
 
   @override

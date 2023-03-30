@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app/measures.dart';
+import 'package:weather_app/screens/homePageScreen.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
-
+  static const route = "/helpScreen";
   @override
   State<HelpScreen> createState() => _HelpScreenState();
 }
@@ -12,8 +13,8 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5)).then(
-        (value) => Navigator.of(context).pushReplacementNamed("/homeScreen"));
+    Future.delayed(const Duration(seconds: 5)).then((value) =>
+        Navigator.of(context).pushReplacementNamed(HomePageScreen.route));
   }
 
   @override
@@ -101,7 +102,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 width: fullWidth(context) * 0.8,
                 child: ElevatedButton(
                     onPressed: () => Navigator.of(context)
-                        .pushReplacementNamed("/homeScreen"),
+                        .pushReplacementNamed(HomePageScreen.route),
                     style: const ButtonStyle(
                         backgroundColor: MaterialStatePropertyAll(
                             Color.fromARGB(255, 47, 154, 156))),

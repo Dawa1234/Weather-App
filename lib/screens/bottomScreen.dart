@@ -72,16 +72,27 @@ class BottomInformation extends ConsumerWidget {
           ),
           gap30,
           ref.watch(weatherInfoProvider(query)).when(data: (data) {
-            current = data!.current;
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                // in celsius
-                _temperatureMeter(current!.temp_c!, "C"),
-                // in farenheit
-                _temperatureMeter(current!.temp_f!, "F"),
-              ],
-            );
+            if (data != null) {
+              current = data.current;
+            }
+            return data != null
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      // in celsius
+                      _temperatureMeter(current!.temp_c!, "C"),
+                      // in farenheit
+                      _temperatureMeter(current!.temp_f!, "F"),
+                    ],
+                  )
+                : const Center(
+                    child: Text(
+                    "No data",
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange),
+                  ));
           }, error: (error, stackTrace) {
             return const Center(
               child: Text("No data"),

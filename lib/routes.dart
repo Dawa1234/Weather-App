@@ -5,6 +5,6 @@ import 'screens/helpScreen.dart';
 
 // Routes
 var getRoutes = <String, WidgetBuilder>{
-  "/helpScreen": (context) => const HelpScreen(),
-  "/homeScreen": (context) =>  HomePageScreen(),
+  HelpScreen.route: (context) => const HelpScreen(),
+  HomePageScreen.route: (context) => const HomePageScreen(),
 };

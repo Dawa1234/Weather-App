@@ -5,4 +5,4 @@
   
 ## Issues/Bugs
   Although task are featured on the application, it still contains some bugs on certain steps. Issues like:
- -asd
+ - asd
